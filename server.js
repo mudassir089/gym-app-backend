@@ -11,7 +11,6 @@ mongoose.connect(process.env.DB_CONNECTION_STRING,{
     console.log('MONGODB CONNECTED')
 }).catch(err => console.log(err))
 
-app.use(cors('*'))
 
 
 app.listen(PORT,() => {
