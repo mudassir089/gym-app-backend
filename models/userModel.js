@@ -19,7 +19,39 @@ const userschema = new mongoose.Schema({
     password:{
         type:String,
         required:true,
+    },
+    weight:{
+        type:String,
+    },
+    arms:{
+        type:String,
+    },
+    shoulder:{
+        type:String,
+    },
+    chest:{
+        type:String,
+    },
+    waist:{
+        type:String,
+    },
+    hips:{
+        type:String,
+    },
+    legs:{
+        type:String,
+    },
+    twins:{
+        type:String,
+    },
+    height:{
+        type:String,
+    },
+    photos:{
+        type:Array,
+        
     }
+
 },{
     toJSON:{
         transform:(doc,ret) => {

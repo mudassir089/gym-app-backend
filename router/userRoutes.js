@@ -1,5 +1,6 @@
 const express = require('express');
 const AuthController = require('../controllers/authController')
+const UserController = require('../controllers/userController')
 
 const userRouter = express.Router();
 
@@ -10,5 +11,7 @@ const userRouter = express.Router();
 // userRouter.post('/signup',UserController.UserSignupWithEmailAndPassword)
 userRouter.post('/login',AuthController.LoginwithEmailandPassword)
 userRouter.post('/signup',AuthController.signup)
+userRouter.post('/updateMeasures/:id',UserController.updateUserMeasurables)
+userRouter.post('/uploadimage/:id',UserController.uploadUserBodyImage)
 
 module.exports = userRouter
