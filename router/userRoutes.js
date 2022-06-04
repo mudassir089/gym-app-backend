@@ -13,5 +13,6 @@ userRouter.post('/login',AuthController.LoginwithEmailandPassword)
 userRouter.post('/signup',AuthController.signup)
 userRouter.post('/updateMeasures/:id',UserController.updateUserMeasurables)
 userRouter.post('/uploadimage/:id',UserController.uploadUserBodyImage)
+userRouter.post('/deleteimages/:id',UserController.deleteImageOfUserBody)
 
 module.exports = userRouter
