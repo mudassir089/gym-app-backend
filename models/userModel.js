@@ -23,6 +23,9 @@ const userschema = new mongoose.Schema({
     weight:{
         type:String,
     },
+    bodyfat:{
+        type:String,
+    },
     arms:{
         type:String,
     },
@@ -49,7 +52,60 @@ const userschema = new mongoose.Schema({
     },
     photos:{
         type:Array,
-        
+        default:[
+            {
+                display:"Frente",
+                image:""
+            },
+            {
+                display:"Lado",
+                image:""
+            },
+            {
+                display:"Espalda",
+                image:""
+            }
+        ]
+    },
+    weightRecord:{
+        type:Array,
+        default:[]
+    },
+    bodyfatRecord:{
+        type:Array,
+        default:[]
+    },
+    armsRecord:{
+        type:Array,
+        default:[]
+    },
+    shoulderRecord:{
+        type:Array,
+        default:[]
+    },
+    chestRecord:{
+        type:Array,
+        default:[]
+    },
+    waistRecord:{
+        type:Array,
+        default:[]
+    },
+    hipsRecord:{
+        type:Array,
+        default:[]
+    },
+    legsRecord:{
+        type:Array,
+        default:[]
+    },
+    twinsRecord:{
+        type:Array,
+        default:[]
+    },
+    heightRecord:{
+        type:Array,
+        default:[]
     }
 
 },{

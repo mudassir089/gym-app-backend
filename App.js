@@ -4,6 +4,7 @@ const Globalerrorhandlingmiddleware = require('./controllers/errorController')
 const morgan = require('morgan');
 const userRouter = require('./router/userRoutes');
 const AppError = require('./util/appError');
+const mealRouter = require('./router/mealRoutes');
 
 
 const app = express();
@@ -21,6 +22,7 @@ app.use(express.urlencoded({
  
 
 app.use('/api/user',userRouter)
+app.use('/api/meal',mealRouter)
 
 
 app.all('*',(req,res,next) => {
