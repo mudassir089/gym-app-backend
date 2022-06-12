@@ -2,6 +2,7 @@ const Meal = require("../models/mealModel");
 const User = require("../models/userModel");
 const catchAsync = require("../util/catchAsync");
 const AppError = require("../util/appError");
+const sendmail = require("../util/sendemail");
 
 exports.createMeal = catchAsync(async (req, res, next) => {
   let {
@@ -94,8 +95,6 @@ exports.getMeal = catchAsync(async (req, res, next) => {
     },
   ]);
 
-
-
   if (meal.length === 0) {
     return res.status(200).json({
       status: "success",
@@ -107,7 +106,7 @@ exports.getMeal = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: meal,
-    nutrients:nutrients[0],
+    nutrients: nutrients[0],
   });
 });
 
@@ -131,29 +130,108 @@ exports.getMealDetails = catchAsync(async (req, res, next) => {
 });
 
 exports.getMealIngridients = catchAsync(async (req, res, next) => {
-    const { id,day } = req.params;
+  const { id, day } = req.params;
 
-    if (!id) {
-        return next(new AppError("Meal Id is required", 400));
-    }
+  if (!id) {
+    return next(new AppError("Meal Id is required", 400));
+  }
 
-    // const ingredients = await Meal.find({
-    //     dayname: day,
-    //     users: { $elemMatch: { $eq: id } },
-    //   }).select("ingredients")
+  // const ingredients = await Meal.find({
+  //     dayname: day,
+  //     users: { $elemMatch: { $eq: id } },
+  //   }).select("ingredients")
 
-      const ings = await Meal.aggregate([
-          { $match: { dayname: day,users: { $elemMatch: { $eq: id } } },  },
-          {$unwind:"$ingredients"},
-          { $group: { _id: {name:"$ingredients.name",image:"$ingredients.image",unit:"$ingredients.unit"}, count: { $sum: 1 },totalValue:{$sum:"$ingredients.value"} } },
-      ])
+  const ings = await Meal.aggregate([
+    { $match: { dayname: day, users: { $elemMatch: { $eq: id } } } },
+    { $unwind: "$ingredients" },
+    {
+      $group: {
+        _id: {
+          name: "$ingredients.name",
+          image: "$ingredients.image",
+          unit: "$ingredients.unit",
+        },
+        count: { $sum: 1 },
+        totalValue: { $sum: "$ingredients.value" },
+      },
+    },
+  ]);
 
-    res.status(200).json({
-        status: "success",
-        data: ings,
-    })
-})
+  res.status(200).json({
+    status: "success",
+    data: ings,
+  });
+});
 
-exports.getAllMealsIngredients = catchAsync(async (req, res, next) => {
+exports.Sendmealingridientstoemail = catchAsync(async (req, res, next) => {
+  let { ings, email } = req.body;
+
+  if (!ings) {
+    return next(new AppError("Please provide all the required fields", 400));
+  }
+
+  ings = JSON.parse(ings);
+
+  console.log(ings);
+
+  let html = `<div>
     
-})
+    <h1>List of Ingridients</h1>
+    <ul>
+    ${ings?.map(
+      (ing) => `<li>${ing.name} - ${ing.totalValue} ${ing.unit}</li>`
+    )}
+    </ul>
+    <h2>Here is your list of ingredients</h2>
+    <h3>Thanks</h3>
+    </div>`;
+
+  sendmail("string", html, res);
+
+  res.status(200).json({
+    status: "success",
+    data: ings,
+  });
+});
+
+exports.getAllIngridientslist = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  let { days, persons } = req.body;
+  days = JSON.parse(days);
+
+  let ingredients = [];
+
+  const findings = async (day) => {
+    ingredients.push(
+      await Meal.aggregate([
+        { $match: { dayname: day, users: { $elemMatch: { $eq: id } } } },
+        // { $match: { users: { $elemMatch: { $eq: id } } },dayname:day },
+        { $unwind: "$ingredients" },
+        {
+          $group: {
+            _id: {
+              name: "$ingredients.name",
+              image: "$ingredients.image",
+              unit: "$ingredients.unit",
+            },
+            count: { $sum: 1 },
+            totalValue: {
+              $sum: { $multiply: ["$ingredients.value", persons ? persons : 1] },
+            },
+          },
+        },
+      ])
+    );
+  };
+
+  try {
+    await Promise.all(days.map((day) => findings(day)));
+    res.status(200).json({
+      status: "success",
+      data: ingredients.flatMap((ing) => ing),
+    });
+  } catch (error) {
+    console.log(error);
+    next(new AppError(error.message, 400));
+  }
+});
