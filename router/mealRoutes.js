@@ -10,5 +10,6 @@ mealRouter.get('/getMealDetails/:id',MealController.getMealDetails)
 mealRouter.get('/getMealIngs/:id/:day',MealController.getMealIngridients)
 mealRouter.post('/sendingstoemail',MealController.Sendmealingridientstoemail)
 mealRouter.post('/getallings/:id',MealController.getAllIngridientslist)
+mealRouter.post('/removemealfromuserslist/:id',MealController.removemealfromuserlist)
 
 module.exports = mealRouter

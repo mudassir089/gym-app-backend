@@ -235,3 +235,26 @@ exports.getAllIngridientslist = catchAsync(async (req, res, next) => {
     next(new AppError(error.message, 400));
   }
 });
+
+exports.removemealfromuserlist = catchAsync(async (req, res, next) => {
+
+    const {id} = req.params;
+
+    if(!id){
+        return next(new AppError("User Id is must Field", 400));
+    }
+
+    await Meal.findOneAndUpdate({users: { $elemMatch: { $eq: id } }}, {
+        $pull: {
+            users: {
+                $eq: id
+            }
+        }
+    },{new: true})
+
+    res.status(200).json({
+        status: "success",
+    })
+
+})
+
