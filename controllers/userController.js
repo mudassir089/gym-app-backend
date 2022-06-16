@@ -152,3 +152,65 @@ exports.updateUserBodyMeasureRecord = catchAsync(async (req, res, next) => {
     next(new AppError(error.message, 400));
   }
 });
+
+exports.updateusername = catchAsync(async (req, res, next) => {
+  console.log(req.user._id)
+
+  const {firstname,lastname} = req.body 
+
+  const user = await User.findByIdAndUpdate(req.user._id,{firstname:firstname,lastname:lastname},{new:true})
+
+  if(!user) {
+    return next(new AppError('No User Found with this Id',400))
+  }
+
+  res.status(200).json({
+    status: "success",
+    data:user,
+    
+  })
+
+})
+
+exports.updateuserimage = catchAsync(async (req, res, next) => {
+
+  const {image} = req.body
+
+  if(!image){
+    return next(new AppError('Image is required',400))
+  }
+
+  const data = await cloudinary.uploader.upload(image)
+  
+  const user = await User.findByIdAndUpdate(req.user._id,{image:data.secure_url},{new:true})
+
+  res.status(200).json({
+    status:'success',
+    data:user,
+  })
+
+})
+
+exports.changePassword = catchAsync(async (req, res, next) => {
+
+  const {currentpassword,newpassword} = req.body
+
+  if(!currentpassword || !newpassword){
+    return next(new AppError('Please provide the new and previous passwords',400))
+  }
+
+  const user = await User.findOne({_id:req.user._id,password:currentpassword})
+
+  if(!user){
+    return next(new AppError('Your Old Password is incorrect Please try again'))
+  }
+
+  user.password = newpassword
+  await user.save()
+
+  res.status(200).json({
+    status: 'success',
+    data:user
+  })
+
+})

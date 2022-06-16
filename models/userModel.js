@@ -106,6 +106,10 @@ const userschema = new mongoose.Schema({
     heightRecord:{
         type:Array,
         default:[]
+    },
+    image:{
+        type:String,
+        default:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1c_Kup7Pd1rkP7yZAWY_sbmjEZlHyFFrrUQ&usqp=CAU"
     }
 
 },{
