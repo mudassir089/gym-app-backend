@@ -10,8 +10,17 @@ exports.exerciseimageuploadmiddleware =
   multer.imageuploadmiddleware.single("image");
 
 exports.createExercise = catchAsync(async (req, res, next) => {
-  let { name, days, weeks, superset, video, users, exercisetype,repetitions } = req.body;
-  if (!name || !days || !weeks || !video || !users || !exercisetype || !repetitions) {
+  let { name, days, weeks, superset, video, users, exercisetype, repetitions } =
+    req.body;
+  if (
+    !name ||
+    !days ||
+    !weeks ||
+    !video ||
+    !users ||
+    !exercisetype ||
+    !repetitions
+  ) {
     return next(new AppError("Please provide all the required fields", 400));
   }
 
@@ -34,8 +43,7 @@ exports.createExercise = catchAsync(async (req, res, next) => {
       image: photo.secure_url,
     });
 
-    fs.unlinkSync(req.file.path)
-
+    fs.unlinkSync(req.file.path);
 
     res.status(200).json({
       status: "success",
@@ -60,15 +68,17 @@ exports.getExercises = catchAsync(async (req, res, next) => {
     users: { $elemMatch: { $eq: id } },
     days: { $elemMatch: { $eq: day } },
     weeks: { $elemMatch: { $eq: week } },
-  }).select("-days -weeks -users").sort({ superset: -1 });
+  })
+    .select("-days -weeks -users")
+    .sort({ superset: -1 });
 
   console.log(exercises);
 
   if (exercises.length === 0) {
-    return  res.status(200).json({
-        status: "success",
-        data:[],
-      });
+    return res.status(200).json({
+      status: "success",
+      data: [],
+    });
   }
 
   res.status(200).json({
@@ -79,6 +89,24 @@ exports.getExercises = catchAsync(async (req, res, next) => {
 
 exports.getAllExercises = catchAsync(async (req, res, next) => {
   const exercises = await Exercise.find({});
+  res.status(200).json({
+    status: "success",
+    data: exercises,
+  });
+});
+
+exports.getAllUserExercises = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  console.log(id);
+  if (!id) {
+    return next(new AppError("user Id is required", 400));
+  }
+
+  const exercises = await Exercise.find({ users: { $in: id } });
+  if (exercises.length < 1) {
+    return next(new AppError("Exercise Not Found", 404));
+  }
+
   res.status(200).json({
     status: "success",
     data: exercises,
